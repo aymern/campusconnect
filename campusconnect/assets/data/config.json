@@ -1,0 +1,41 @@
+{
+  "campus_code": "CAM-PHX-05",
+  "group_number": 5,
+  "primary_color": "#E65100",
+  "secondary_color": "#2979FF",
+  "api_base_path": "/api/v2/phx/",
+  "api_version": "v2",
+  "campus_name": "Phoenix Campus",
+  "campus_timezone": "America/Phoenix",
+  "unique_constraint": "dark_mode_enforced_8pm_6am",
+  "feature_modules": ["A", "C", "D"],
+  "max_concurrent_chats": 5,
+  "dark_mode_start_hour": 20,
+  "dark_mode_end_hour": 6,
+  "buildings": [
+    "Phoenix Convention Center",
+    "Desert Botanical Garden Hall",
+    "South Mountain Library",
+    "Camelback Academic Tower",
+    "Papago Research Park",
+    "Tempe Campus Center",
+    "Scottsdale Innovation Hub",
+    "Ahwatukee Student Union",
+    "Paradise Valley Lecture Hall",
+    "Chandler Technology Wing"
+  ],
+  "emergency_countdown_seconds": 20,
+  "marketplace_transaction_fee_percent": 3,
+  "marketplace_prohibited_items": [
+    "alcohol",
+    "tobacco",
+    "prescription drugs",
+    "weapons",
+    "counterfeit goods"
+  ],
+  "scheduling_conflict_rules": {
+    "CS_with_Art_before_2PM": false,
+    "Engineering_with_Business_before_10AM": false
+  },
+  "beacon_uuid_prefix": "PHX-CAM-05"
+}

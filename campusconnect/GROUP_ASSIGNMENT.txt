@@ -1,0 +1,27 @@
+We are Group 5, Campus CAM-PHX-05
+
+Group Number  : 5
+Campus Code   : CAM-PHX-05
+Campus Name   : Phoenix Campus
+API Base Path : /api/v2/phx/
+API Version   : v2
+Primary Color : #E65100
+Secondary Color: #2979FF
+Unique Constraint: Dark mode automatically enforced from 8PM to 6AM.
+                   Users cannot disable dark mode during those hours.
+Feature Modules: A (Smart Scheduling), C (Campus Marketplace), D (Emergency Alert)
+
+Members:
+  1. [Group Leader]      — FCP/CSE/22/xxxx
+  2. [Secretary]         — FCP/CSE/22/xxxx
+  3. [Project Coordinator] — FCP/CSE/22/xxxx
+
+Course: Software Engineering Project (CSE 413)
+Level : 400
+Lecturer: Muhammad Salisu Ali
+Department: Cyber Security
+University: Federal University Dutse
+
+Runtime verification: This file's campus_code and API path are cross-checked
+against config.json on every application start. Mismatch results in a fatal
+error screen and prevents application launch.
