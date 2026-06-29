@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +10,14 @@ import 'core/theme/theme_provider.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/error/fatal_error_screen.dart';
 import 'features/main/presentation/pages/main_shell.dart';
+import 'features/notifications/data/repositories/notification_repository.dart';
+import 'features/notifications/presentation/providers/notification_provider.dart';
+import 'features/notifications/services/fcm_service.dart';
+import 'features/notifications/services/local_notification_service.dart';
+import 'features/offline/data/repositories/offline_cache_repository.dart';
+import 'features/offline/presentation/providers/offline_provider.dart';
+import 'features/offline/services/connectivity_monitor.dart';
+import 'features/offline/services/sync_service.dart';
 import 'features/splash/splash_screen.dart';
 
 void main() async {
@@ -60,6 +69,25 @@ class CampusConnectApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<AuthProvider>(
           create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider<NotificationProvider>(
+          create: (_) => NotificationProvider(
+            repository: SqliteNotificationRepository(),
+            fcmService: kIsWeb || kDebugMode
+                ? DemoFcmService()
+                : FirebaseCloudMessagingService(),
+            localNotificationService: LocalNotificationService(),
+            demoMode: kIsWeb || kDebugMode,
+          ),
+        ),
+        ChangeNotifierProvider<OfflineProvider>(
+          create: (_) => OfflineProvider(
+            cacheRepository: SqliteOfflineCacheRepository(),
+            connectivityMonitor: ConnectivityMonitor(),
+            syncService: SyncService(
+              queueRepository: SqliteOfflineCacheRepository(),
+            ),
+          ),
         ),
         // AppConfig is provided as a plain value — it's immutable
         Provider<AppConfig>.value(value: config),
@@ -117,6 +145,12 @@ class _StartupGateState extends State<_StartupGate> {
 
     final authProvider = context.read<AuthProvider>();
     await authProvider.initialize();
+
+    final notificationProvider = context.read<NotificationProvider>();
+    await notificationProvider.initialize();
+
+    final offlineProvider = context.read<OfflineProvider>();
+    await offlineProvider.initialize();
 
     await Future.delayed(const Duration(milliseconds: 400));
 

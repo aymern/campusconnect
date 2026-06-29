@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../notifications/presentation/pages/notification_history_page.dart';
+import '../../../notifications/presentation/providers/notification_provider.dart';
+import '../../../offline/presentation/providers/offline_provider.dart';
 import '../widgets/app_bottom_nav_bar.dart';
 import 'dashboard_page.dart';
 import 'emergency_page.dart';
@@ -39,11 +42,44 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final appConfig = context.read<AppConfig>();
     final themeProvider = context.watch<ThemeProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
+    final offlineProvider = context.watch<OfflineProvider>();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('CampusConnect'),
         actions: [
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => const NotificationHistoryPage(),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.notifications_rounded),
+                tooltip: 'Notifications',
+              ),
+              if (notificationProvider.badgeCount > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: CircleAvatar(
+                    radius: 8,
+                    backgroundColor: Colors.red,
+                    child: Text(
+                      notificationProvider.badgeCount > 9
+                          ? '9+'
+                          : notificationProvider.badgeCount.toString(),
+                      style: const TextStyle(fontSize: 9, color: Colors.white),
+                    ),
+                  ),
+                ),
+            ],
+          ),
           IconButton(
             onPressed: themeProvider.isDarkModeEnforced
                 ? null
@@ -56,9 +92,22 @@ class _MainShellState extends State<MainShell> {
         ],
       ),
       body: SafeArea(
-        child: IndexedStack(
-          index: _currentIndex,
-          children: _pages,
+        child: Column(
+          children: [
+            if (!offlineProvider.isOnline)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: const Text('Offline mode · Using cached data', textAlign: TextAlign.center),
+              ),
+            Expanded(
+              child: IndexedStack(
+                index: _currentIndex,
+                children: _pages,
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: AppBottomNavBar(

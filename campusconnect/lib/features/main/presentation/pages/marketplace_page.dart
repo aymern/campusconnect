@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../../marketplace/data/repositories/marketplace_repository.dart';
+import '../../../marketplace/presentation/pages/marketplace_home_page.dart';
+import '../../../marketplace/presentation/providers/marketplace_provider.dart';
 
 /// Marketplace feature page.
 class MarketplacePage extends StatelessWidget {
@@ -6,26 +11,11 @@ class MarketplacePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(20),
-      children: [
-        Text('Marketplace', style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 12),
-        const Card(
-          child: ListTile(
-            leading: Icon(Icons.shopping_bag_rounded),
-            title: Text('Textbook bundle'),
-            subtitle: Text('Chemistry 101 · \$35'),
-          ),
-        ),
-        const Card(
-          child: ListTile(
-            leading: Icon(Icons.electric_bike_rounded),
-            title: Text('Bike for sale'),
-            subtitle: Text('Great condition · \$90'),
-          ),
-        ),
-      ],
+    return ChangeNotifierProvider<MarketplaceProvider>(
+      create: (_) => MarketplaceProvider(
+        repository: SqliteMarketplaceRepository(),
+      ),
+      child: const MarketplaceHomePage(),
     );
   }
 }

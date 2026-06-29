@@ -1,6 +1,12 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-import '../../../location/presentation/pages/location_home_page.dart';
+import '../../../emergency/data/repositories/emergency_repository.dart';
+import '../../../emergency/presentation/pages/emergency_alert_page.dart';
+import '../../../emergency/presentation/providers/emergency_provider.dart';
+import '../../../location/data/repositories/geolocator_location_repository.dart';
+import '../../../notifications/presentation/providers/notification_provider.dart';
 
 /// Emergency feature page.
 class EmergencyPage extends StatelessWidget {
@@ -8,32 +14,14 @@ class EmergencyPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Emergency', style: Theme.of(context).textTheme.headlineSmall),
-          const SizedBox(height: 12),
-          const Card(
-            child: ListTile(
-              leading: Icon(Icons.call_rounded, color: Colors.red),
-              title: Text('Emergency contacts'),
-              subtitle: Text('Campus security • 911 • Counseling center'),
-            ),
-          ),
-          const SizedBox(height: 12),
-          FilledButton.icon(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const LocationHomePage()),
-              );
-            },
-            icon: const Icon(Icons.sos_rounded),
-            label: const Text('Open campus map'),
-          ),
-        ],
+    return ChangeNotifierProvider<EmergencyProvider>(
+      create: (context) => EmergencyProvider(
+        repository: SqliteEmergencyRepository(),
+        locationRepository: GeolocatorLocationRepository(),
+        notificationProvider: context.read<NotificationProvider>(),
+        demoMode: kDebugMode,
       ),
+      child: const EmergencyAlertPage(),
     );
   }
 }
