@@ -37,7 +37,7 @@ class FatalErrorScreen extends StatelessWidget {
                 width: 96,
                 height: 96,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF8B0000).withOpacity(0.4),
+                  color: const Color(0xFF8B0000).withValues(alpha: 0.4),
                   shape: BoxShape.circle,
                   border: Border.all(
                     color: const Color(0xFFCF6679),

@@ -3,8 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'core/config/app_config.dart';
+import 'core/services/auth_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
+import 'features/auth/auth_gate.dart';
 import 'features/error/fatal_error_screen.dart';
 import 'features/splash/splash_screen.dart';
 
@@ -55,6 +57,9 @@ class CampusConnectApp extends StatelessWidget {
         ChangeNotifierProvider<ThemeProvider>(
           create: (_) => ThemeProvider(config),
         ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(),
+        ),
         // AppConfig is provided as a plain value — it's immutable
         Provider<AppConfig>.value(value: config),
       ],
@@ -97,7 +102,6 @@ class _StartupGate extends StatefulWidget {
 
 class _StartupGateState extends State<_StartupGate> {
   bool _ready = false;
-  String _status = 'Verifying configuration…';
 
   @override
   void initState() {
@@ -106,17 +110,17 @@ class _StartupGateState extends State<_StartupGate> {
   }
 
   Future<void> _startup() async {
-    // Step 1: Brief startup pause to show splash (Firebase init will live here)
     await Future.delayed(const Duration(milliseconds: 500));
 
     if (!mounted) return;
-    setState(() => _status = 'Loading campus data…');
 
-    await Future.delayed(const Duration(milliseconds: 600));
+    final authProvider = context.read<AuthProvider>();
+    await authProvider.initialize();
+
+    await Future.delayed(const Duration(milliseconds: 400));
 
     if (!mounted) return;
     setState(() {
-      _status = 'Ready';
       _ready = true;
     });
   }
@@ -127,8 +131,7 @@ class _StartupGateState extends State<_StartupGate> {
       return const SplashScreen();
     }
 
-    // TODO(Milestone 2): Replace with AuthGate that checks Firebase auth state
-    return const _PlaceholderHomeShell();
+    return const AuthGate(child: _PlaceholderHomeShell());
   }
 }
 
@@ -178,7 +181,7 @@ class _PlaceholderHomeShell extends StatelessWidget {
             const SizedBox(height: 20),
 
             // Milestone tracker
-            _MilestoneTracker(),
+            const _MilestoneTracker(),
           ],
         ),
       ),
@@ -196,7 +199,7 @@ class _ConfigBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0xFF00897B).withOpacity(0.1),
+        color: const Color(0xFF00897B).withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: const Color(0xFF00897B), width: 1.5),
       ),
@@ -284,8 +287,8 @@ class _ThemeStatusCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isEnforced
-            ? const Color(0xFF1A1A2E).withOpacity(0.8)
-            : AppColors.primary.withOpacity(0.08),
+            ? const Color(0xFF1A1A2E).withValues(alpha: 0.8)
+            : AppColors.primary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: isEnforced ? const Color(0xFF4A4A8A) : AppColors.primary,

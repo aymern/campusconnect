@@ -62,10 +62,10 @@ class _SplashScreenState extends State<SplashScreen>
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
+                    color: Colors.white.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.5),
+                      color: Colors.white.withValues(alpha: 0.5),
                       width: 2,
                     ),
                   ),
@@ -96,7 +96,7 @@ class _SplashScreenState extends State<SplashScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
+                  color: Colors.white.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: const Text(
@@ -116,7 +116,7 @@ class _SplashScreenState extends State<SplashScreen>
               SizedBox(
                 width: 120,
                 child: LinearProgressIndicator(
-                  backgroundColor: Colors.white.withOpacity(0.2),
+                  backgroundColor: Colors.white.withValues(alpha: 0.2),
                   valueColor:
                       const AlwaysStoppedAnimation<Color>(Colors.white),
                   borderRadius: BorderRadius.circular(4),
@@ -129,7 +129,7 @@ class _SplashScreenState extends State<SplashScreen>
                 style: TextStyle(
                   fontFamily: 'Roboto',
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.7),
+                  color: Colors.white.withValues(alpha: 0.7),
                   letterSpacing: 0.5,
                 ),
               ),

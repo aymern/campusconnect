@@ -52,7 +52,7 @@ class AppTheme {
   // ── Light Theme ────────────────────────────────────────────────────────
 
   static ThemeData get light {
-    final colorScheme = ColorScheme(
+    const colorScheme = ColorScheme(
       brightness: Brightness.light,
       primary: AppColors.primary,
       onPrimary: AppColors.onPrimary,
@@ -64,24 +64,22 @@ class AppTheme {
       onSecondaryContainer: Colors.white,
       tertiary: AppColors.success,
       onTertiary: Colors.white,
-      tertiaryContainer: const Color(0xFFB2DFDB),
-      onTertiaryContainer: const Color(0xFF004D40),
+      tertiaryContainer: Color(0xFFB2DFDB),
+      onTertiaryContainer: Color(0xFF004D40),
       error: AppColors.error,
       onError: Colors.white,
-      errorContainer: const Color(0xFFFFDAD6),
-      onErrorContainer: const Color(0xFF410002),
-      background: AppColors.backgroundLight,
-      onBackground: AppColors.onSurfaceLight,
+      errorContainer: Color(0xFFFFDAD6),
+      onErrorContainer: Color(0xFF410002),
       surface: AppColors.surfaceLight,
       onSurface: AppColors.onSurfaceLight,
-      surfaceVariant: AppColors.surfaceVariantLight,
+      surfaceContainerHighest: AppColors.surfaceVariantLight,
       onSurfaceVariant: AppColors.onSurfaceVariantLight,
-      outline: const Color(0xFF79747E),
-      outlineVariant: const Color(0xFFCAC4D0),
+      outline: Color(0xFF79747E),
+      outlineVariant: Color(0xFFCAC4D0),
       shadow: Colors.black,
       scrim: Colors.black,
-      inverseSurface: const Color(0xFF313033),
-      onInverseSurface: const Color(0xFFF4EFF4),
+      inverseSurface: Color(0xFF313033),
+      onInverseSurface: Color(0xFFF4EFF4),
       inversePrimary: AppColors.primaryLight,
       surfaceTint: AppColors.primary,
     );
@@ -92,7 +90,7 @@ class AppTheme {
   // ── Dark Theme ─────────────────────────────────────────────────────────
 
   static ThemeData get dark {
-    final colorScheme = ColorScheme(
+    const colorScheme = ColorScheme(
       brightness: Brightness.dark,
       primary: AppColors.primaryLight,
       onPrimary: Colors.black,
@@ -102,26 +100,24 @@ class AppTheme {
       onSecondary: Colors.black,
       secondaryContainer: AppColors.secondaryDark,
       onSecondaryContainer: Colors.white,
-      tertiary: const Color(0xFF4DB6AC),
+      tertiary: Color(0xFF4DB6AC),
       onTertiary: Colors.black,
-      tertiaryContainer: const Color(0xFF004D40),
-      onTertiaryContainer: const Color(0xFFB2DFDB),
-      error: const Color(0xFFCF6679),
-      onError: const Color(0xFF690005),
-      errorContainer: const Color(0xFF93000A),
-      onErrorContainer: const Color(0xFFFFDAD6),
-      background: AppColors.backgroundDark,
-      onBackground: AppColors.onSurfaceDark,
+      tertiaryContainer: Color(0xFF004D40),
+      onTertiaryContainer: Color(0xFFB2DFDB),
+      error: Color(0xFFCF6679),
+      onError: Color(0xFF690005),
+      errorContainer: Color(0xFF93000A),
+      onErrorContainer: Color(0xFFFFDAD6),
       surface: AppColors.surfaceDark,
       onSurface: AppColors.onSurfaceDark,
-      surfaceVariant: AppColors.surfaceVariantDark,
+      surfaceContainerHighest: AppColors.surfaceVariantDark,
       onSurfaceVariant: AppColors.onSurfaceVariantDark,
-      outline: const Color(0xFF938F99),
-      outlineVariant: const Color(0xFF49454F),
+      outline: Color(0xFF938F99),
+      outlineVariant: Color(0xFF49454F),
       shadow: Colors.black,
       scrim: Colors.black,
-      inverseSurface: const Color(0xFFE6E1E5),
-      onInverseSurface: const Color(0xFF313033),
+      inverseSurface: Color(0xFFE6E1E5),
+      onInverseSurface: Color(0xFF313033),
       inversePrimary: AppColors.primary,
       surfaceTint: AppColors.primaryLight,
     );
@@ -262,13 +258,13 @@ class AppTheme {
         ),
         hintStyle: TextStyle(
           color: isLight
-              ? AppColors.onSurfaceVariantLight.withOpacity(0.6)
-              : AppColors.onSurfaceVariantDark.withOpacity(0.6),
+              ? AppColors.onSurfaceVariantLight.withValues(alpha: 0.6)
+              : AppColors.onSurfaceVariantDark.withValues(alpha: 0.6),
         ),
       ),
 
       // Card
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: isLight ? 1 : 4,
         color: isLight ? AppColors.surfaceLight : AppColors.surfaceVariantDark,
         surfaceTintColor: Colors.transparent,
@@ -283,7 +279,7 @@ class AppTheme {
         backgroundColor: isLight
             ? AppColors.surfaceVariantLight
             : AppColors.surfaceVariantDark,
-        selectedColor: AppColors.primary.withOpacity(0.2),
+        selectedColor: AppColors.primary.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontSize: 13),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
@@ -309,7 +305,7 @@ class AppTheme {
       textTheme: _buildTextTheme(isLight),
 
       // Dialog
-      dialogTheme: DialogTheme(
+      dialogTheme: DialogThemeData(
         backgroundColor:
             isLight ? AppColors.surfaceLight : AppColors.surfaceVariantDark,
         surfaceTintColor: Colors.transparent,
