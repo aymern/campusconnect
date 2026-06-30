@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/theme/theme_provider.dart';
+<<<<<<< HEAD
 import '../../../notifications/presentation/pages/notification_history_page.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 import '../../../offline/presentation/pages/offline_status_page.dart';
 import '../../../offline/presentation/providers/offline_provider.dart';
+=======
+import '../../../offline/presentation/providers/offline_sync_provider.dart';
+>>>>>>> dc4cda3 (Configure Firebase and complete milestones 8-10)
 
 /// Settings feature page.
 class SettingsPage extends StatelessWidget {
@@ -14,8 +18,12 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = context.watch<ThemeProvider>();
+<<<<<<< HEAD
     final notificationProvider = context.watch<NotificationProvider>();
     final offlineProvider = context.watch<OfflineProvider>();
+=======
+    final offlineProvider = context.watch<OfflineSyncProvider>();
+>>>>>>> dc4cda3 (Configure Firebase and complete milestones 8-10)
 
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -83,6 +91,12 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.info_rounded),
             title: const Text('Campus code'),
             subtitle: Text(themeProvider.themeStatusLabel),
+          ),
+          const SizedBox(height: 8),
+          ListTile(
+            leading: Icon(offlineProvider.isOnline ? Icons.wifi_rounded : Icons.wifi_off_rounded),
+            title: const Text('Offline sync'),
+            subtitle: Text(offlineProvider.isOnline ? 'Connected' : 'Offline queue active'),
           ),
         ],
       ),

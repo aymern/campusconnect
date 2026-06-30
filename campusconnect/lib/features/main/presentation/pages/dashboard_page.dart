@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../core/config/app_config.dart';
 import '../../../../core/services/auth_provider.dart';
 import '../../../../core/theme/theme_provider.dart';
+import '../../../notifications/presentation/providers/notification_provider.dart';
+import '../../../offline/presentation/providers/offline_sync_provider.dart';
 
 /// Dashboard page shown as the landing page in the main application shell.
 class DashboardPage extends StatelessWidget {
@@ -14,6 +16,8 @@ class DashboardPage extends StatelessWidget {
     final config = context.read<AppConfig>();
     final authProvider = context.watch<AuthProvider>();
     final themeProvider = context.watch<ThemeProvider>();
+    final notificationProvider = context.watch<NotificationProvider>();
+    final offlineProvider = context.watch<OfflineSyncProvider>();
     final userEmail = authProvider.user?.email ?? 'Signed out';
 
     return ListView(
@@ -57,8 +61,14 @@ class DashboardPage extends StatelessWidget {
         const SizedBox(height: 20),
         Text('Recent notifications', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),
-        const _NotificationTile(title: 'Welcome to CampusConnect', subtitle: 'Your account is ready.'),
-        const _NotificationTile(title: 'Dark mode active', subtitle: 'Applied automatically after 8 PM.'),
+        _NotificationTile(
+          title: 'Unread alerts',
+          subtitle: '${notificationProvider.unreadCount} new updates ready',
+        ),
+        _NotificationTile(
+          title: 'Offline sync',
+          subtitle: offlineProvider.isOnline ? 'Connected and ready to sync' : 'Offline mode active',
+        ),
         const SizedBox(height: 20),
         Text('Upcoming events', style: Theme.of(context).textTheme.titleMedium),
         const SizedBox(height: 8),

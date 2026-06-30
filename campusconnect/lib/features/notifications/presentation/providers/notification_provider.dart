@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
@@ -167,5 +168,52 @@ class NotificationProvider extends ChangeNotifier {
       ..clear()
       ..addAll(items);
     _badgeCount = await _repository.unreadCount();
+=======
+import 'package:flutter/foundation.dart';
+
+import '../../domain/entities/campus_notification.dart';
+
+class NotificationProvider extends ChangeNotifier {
+  NotificationProvider() {
+    _notifications = [
+      CampusNotification(
+        id: 'notif-1',
+        title: 'Campus mixer',
+        subtitle: 'Join the student mixer at 6:30 PM.',
+        createdAt: DateTime.now().subtract(const Duration(hours: 1)),
+      ),
+      CampusNotification(
+        id: 'notif-2',
+        title: 'Library workshop',
+        subtitle: 'Resume lab prep starts at 4:00 PM.',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 30)),
+        isRead: true,
+      ),
+      CampusNotification(
+        id: 'notif-3',
+        title: 'Sync reminder',
+        subtitle: 'Your offline changes are ready to upload.',
+        createdAt: DateTime.now().subtract(const Duration(minutes: 10)),
+      ),
+    ];
+  }
+
+  late List<CampusNotification> _notifications;
+
+  List<CampusNotification> get notifications => List.unmodifiable(_notifications);
+
+  int get unreadCount => _notifications.where((item) => !item.isRead).length;
+
+  void markAsRead(String notificationId) {
+    _notifications = _notifications
+        .map((item) => item.id == notificationId ? item.copyWith(isRead: true) : item)
+        .toList(growable: false);
+    notifyListeners();
+  }
+
+  void addNotification(CampusNotification notification) {
+    _notifications = [notification, ..._notifications];
+    notifyListeners();
+>>>>>>> dc4cda3 (Configure Firebase and complete milestones 8-10)
   }
 }

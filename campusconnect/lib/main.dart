@@ -10,6 +10,7 @@ import 'core/theme/theme_provider.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/error/fatal_error_screen.dart';
 import 'features/main/presentation/pages/main_shell.dart';
+<<<<<<< HEAD
 import 'features/notifications/data/repositories/notification_repository.dart';
 import 'features/notifications/presentation/providers/notification_provider.dart';
 import 'features/notifications/services/fcm_service.dart';
@@ -18,10 +19,20 @@ import 'features/offline/data/repositories/offline_cache_repository.dart';
 import 'features/offline/presentation/providers/offline_provider.dart';
 import 'features/offline/services/connectivity_monitor.dart';
 import 'features/offline/services/sync_service.dart';
+=======
+import 'features/notifications/presentation/providers/notification_provider.dart';
+import 'features/offline/presentation/providers/offline_sync_provider.dart';
+import 'features/scheduling/presentation/providers/scheduling_provider.dart';
+>>>>>>> dc4cda3 (Configure Firebase and complete milestones 8-10)
 import 'features/splash/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+  options: DefaultFirebaseOptions.currentPlatform,
+);
 
   // Lock to portrait orientation
   await SystemChrome.setPreferredOrientations([
@@ -71,6 +82,7 @@ class CampusConnectApp extends StatelessWidget {
           create: (_) => AuthProvider(),
         ),
         ChangeNotifierProvider<NotificationProvider>(
+<<<<<<< HEAD
           create: (_) => NotificationProvider(
             repository: SqliteNotificationRepository(),
             fcmService: kIsWeb || kDebugMode
@@ -88,6 +100,15 @@ class CampusConnectApp extends StatelessWidget {
               queueRepository: SqliteOfflineCacheRepository(),
             ),
           ),
+=======
+          create: (_) => NotificationProvider(),
+        ),
+        ChangeNotifierProvider<OfflineSyncProvider>(
+          create: (_) => OfflineSyncProvider(),
+        ),
+        ChangeNotifierProvider<SchedulingProvider>(
+          create: (_) => SchedulingProvider(),
+>>>>>>> dc4cda3 (Configure Firebase and complete milestones 8-10)
         ),
         // AppConfig is provided as a plain value — it's immutable
         Provider<AppConfig>.value(value: config),

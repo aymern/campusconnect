@@ -5,13 +5,17 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
 
+const bool kDemoMode = false;
 /// Central authentication service for CampusConnect.
 ///
 /// The provider keeps the app state in sync with Firebase Auth, persists a
 /// lightweight session marker for secure re-entry, and exposes a small API for
 /// login, registration, password reset, Google Sign-In, and biometric unlock.
+/// When [kDemoMode] is true, this provider switches to a development-only mock
+/// authentication flow without changing the public API.
 class AuthProvider extends ChangeNotifier {
-  AuthProvider() {
+  AuthProvider({bool demoMode = kDemoMode}) {
+    _demoMode = demoMode;
     _hydratePersistedSession();
   }
 
@@ -20,7 +24,8 @@ class AuthProvider extends ChangeNotifier {
   final LocalAuthentication _localAuth = LocalAuthentication();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  User? _user;
+  late bool _demoMode;
+  CampusUser? _user;
   bool _isLoading = false;
   bool _isInitialized = false;
   bool _isBiometricAvailable = false;
@@ -28,7 +33,7 @@ class AuthProvider extends ChangeNotifier {
   String? _errorMessage;
   String? _lastSignedInEmail;
 
-  User? get user => _user;
+  CampusUser? get user => _user;
   bool get isLoading => _isLoading;
   bool get isAuthenticated => _user != null;
   bool get isInitialized => _isInitialized;
@@ -43,25 +48,42 @@ class AuthProvider extends ChangeNotifier {
     _setLoading(true);
 
     try {
-      await Firebase.initializeApp();
-      _auth = FirebaseAuth.instance;
-      _googleSignIn = GoogleSignIn();
+      if (_demoMode) {
+        _user = const CampusUser(
+          uid: 'demo-user',
+          email: 'demo@campusconnect.dev',
+          displayName: 'Demo User',
+        );
+        _isBiometricAvailable = true;
+        _isBiometricEnabled = true;
+        _lastSignedInEmail = 'demo@campusconnect.dev';
+        await _persistSession(
+          email: _lastSignedInEmail!,
+          password: 'demo-password',
+        );
+      } else {
+        _auth = FirebaseAuth.instance;
+        _googleSignIn = GoogleSignIn();
 
-      _user = _auth!.currentUser;
-      _auth!.authStateChanges().listen((User? nextUser) {
-        _user = nextUser;
-        if (nextUser == null) {
-          _clearPersistedSession();
-        }
-        notifyListeners();
-      });
+        final firebaseUser = _auth!.currentUser;
+        _user = firebaseUser == null ? null : CampusUser.fromFirebase(firebaseUser);
+        _auth!.authStateChanges().listen((User? nextUser) {
+          _user = nextUser == null ? null : CampusUser.fromFirebase(nextUser);
+          if (nextUser == null) {
+            _clearPersistedSession();
+          }
+          notifyListeners();
+        });
 
-      _isBiometricAvailable = await _localAuth.canCheckBiometrics;
-      _isBiometricEnabled =
-          await _secureStorage.read(key: 'biometric_enabled') == 'true';
-      _lastSignedInEmail = await _secureStorage.read(key: 'last_signed_in_email');
+        _isBiometricAvailable = await _localAuth.canCheckBiometrics;
+        _isBiometricEnabled =
+            await _secureStorage.read(key: 'biometric_enabled') == 'true';
+        _lastSignedInEmail = await _secureStorage.read(key: 'last_signed_in_email');
+      }
     } catch (_) {
-      _errorMessage = 'Firebase could not be initialized on this device.';
+      _errorMessage = _demoMode
+          ? 'Demo authentication is unavailable.'
+          : 'Firebase could not be initialized on this device.';
     } finally {
       _isInitialized = true;
       _setLoading(false);
@@ -76,6 +98,17 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
+      if (_demoMode) {
+        _user = CampusUser(
+          uid: 'demo-user',
+          email: email.trim().isEmpty ? 'demo@campusconnect.dev' : email.trim(),
+          displayName: 'Demo User',
+        );
+        await _persistSession(email: _user!.email ?? 'demo@campusconnect.dev', password: password);
+        notifyListeners();
+        return;
+      }
+
       final auth = _auth;
       if (auth == null) {
         _errorMessage = 'Authentication is unavailable.';
@@ -86,7 +119,7 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim(),
         password: password,
       );
-      _user = credential.user;
+      _user = CampusUser.fromFirebase(credential.user!);
       await _persistSession(email: email.trim(), password: password);
       notifyListeners();
     } on FirebaseAuthException catch (error) {
@@ -106,6 +139,17 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
+      if (_demoMode) {
+        _user = CampusUser(
+          uid: 'demo-user',
+          email: email.trim().isEmpty ? 'demo@campusconnect.dev' : email.trim(),
+          displayName: 'Demo User',
+        );
+        await _persistSession(email: _user!.email ?? 'demo@campusconnect.dev', password: password);
+        notifyListeners();
+        return;
+      }
+
       final auth = _auth;
       if (auth == null) {
         _errorMessage = 'Authentication is unavailable.';
@@ -116,7 +160,7 @@ class AuthProvider extends ChangeNotifier {
         email: email.trim(),
         password: password,
       );
-      _user = credential.user;
+      _user = CampusUser.fromFirebase(credential.user!);
       await _persistSession(email: email.trim(), password: password);
       notifyListeners();
     } on FirebaseAuthException catch (error) {
@@ -133,6 +177,17 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
+      if (_demoMode) {
+        _user = const CampusUser(
+          uid: 'demo-google-user',
+          email: 'demo@campusconnect.dev',
+          displayName: 'Demo Google User',
+        );
+        await _persistSession(email: _user!.email ?? 'demo@campusconnect.dev');
+        notifyListeners();
+        return;
+      }
+
       if (kIsWeb) {
         _errorMessage = 'Google Sign-In is available on supported mobile builds.';
         return;
@@ -163,7 +218,7 @@ class AuthProvider extends ChangeNotifier {
       }
 
       final authCredential = await auth.signInWithCredential(credential);
-      _user = authCredential.user;
+      _user = CampusUser.fromFirebase(authCredential.user!);
       await _persistSession(email: _user?.email ?? 'google-user');
       notifyListeners();
     } catch (_) {
@@ -178,6 +233,11 @@ class AuthProvider extends ChangeNotifier {
     _errorMessage = null;
 
     try {
+      if (_demoMode) {
+        await _persistSession(email: email.trim(), password: 'demo-password');
+        return;
+      }
+
       final auth = _auth;
       if (auth == null) {
         _errorMessage = 'Authentication is unavailable.';
@@ -195,6 +255,18 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<bool> signInWithBiometrics() async {
+    if (_demoMode) {
+      _user = const CampusUser(
+        uid: 'demo-biometrics-user',
+        email: 'demo@campusconnect.dev',
+        displayName: 'Demo Biometric User',
+      );
+      _isBiometricEnabled = true;
+      await _persistSession(email: _user!.email ?? 'demo@campusconnect.dev');
+      notifyListeners();
+      return true;
+    }
+
     if (!_isBiometricEnabled || !_isBiometricAvailable) return false;
 
     final authenticated = await _localAuth.authenticate(
@@ -229,8 +301,10 @@ class AuthProvider extends ChangeNotifier {
   Future<void> signOut() async {
     _setLoading(true);
     try {
-      await _auth?.signOut();
-      await _googleSignIn?.signOut();
+      if (!_demoMode) {
+        await _auth?.signOut();
+        await _googleSignIn?.signOut();
+      }
       await _clearPersistedSession();
       _user = null;
       notifyListeners();
@@ -240,6 +314,14 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _hydratePersistedSession() async {
+    if (_demoMode) {
+      _isBiometricAvailable = true;
+      _isBiometricEnabled = true;
+      _lastSignedInEmail = 'demo@campusconnect.dev';
+      notifyListeners();
+      return;
+    }
+
     final storedEmail = await _secureStorage.read(key: 'last_signed_in_email');
     final storedSession = await _secureStorage.read(key: 'session_present');
     _lastSignedInEmail = storedEmail;
@@ -256,6 +338,11 @@ class AuthProvider extends ChangeNotifier {
     String? password,
   }) async {
     _lastSignedInEmail = email;
+    if (_demoMode) {
+      notifyListeners();
+      return;
+    }
+
     await _secureStorage.write(key: 'last_signed_in_email', value: email);
     await _secureStorage.write(key: 'session_present', value: 'true');
     if (password != null && password.isNotEmpty) {
@@ -268,6 +355,13 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> _clearPersistedSession() async {
+    if (_demoMode) {
+      _isBiometricEnabled = false;
+      _lastSignedInEmail = null;
+      notifyListeners();
+      return;
+    }
+
     await _secureStorage.delete(key: 'session_present');
     await _secureStorage.delete(key: 'last_signed_in_email');
     await _secureStorage.delete(key: 'biometric_enabled');
@@ -279,5 +373,28 @@ class AuthProvider extends ChangeNotifier {
   void _setLoading(bool value) {
     _isLoading = value;
     notifyListeners();
+  }
+}
+
+class CampusUser {
+  const CampusUser({
+    required this.uid,
+    required this.email,
+    required this.displayName,
+    this.photoUrl,
+  });
+
+  final String? uid;
+  final String? email;
+  final String? displayName;
+  final String? photoUrl;
+
+  factory CampusUser.fromFirebase(User user) {
+    return CampusUser(
+      uid: user.uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoUrl: user.photoURL,
+    );
   }
 }
